@@ -1,0 +1,9 @@
+authProxyServer/authProxyServer
+*.lock*
+*.env
+*.bak
+*.old
+*~
+*.swp
+.DS_Store
+

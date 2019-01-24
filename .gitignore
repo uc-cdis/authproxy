@@ -6,4 +6,4 @@ authProxyServer/authProxyServer
 *~
 *.swp
 .DS_Store
-
+.vscode

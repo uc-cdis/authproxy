@@ -66,39 +66,34 @@ func FenceUserResponseFromJSON(jsonIn []byte) *FenceUserResponse {
 }
 
 // CheckAccess implements limitted admin access control
-func (fence *FenceAuthzService) CheckAccess(token, action, resource string) (access int, err error) {
+func (fence *FenceAuthzService) CheckAccess(token, action, resource string) (access bool, err error) {
 	if cacheAccess, cacheOk := fence.Cache.Lookup(token, action, resource); cacheOk {
-		if cacheAccess {
-			access = AUTHZ_OK
-		} else {
-			access = AUTHZ_NOTOK
-		}
-		return access, nil
+		return cacheAccess, nil
 	}
 	req, err := http.NewRequest("GET", fence.Config.EndPointURL+"/user", nil)
 	if nil != err {
-		return AUTHZ_NOTOK, err
+		return false, err
 	}
 	req.Header.Set("Authorization", "bearer "+token)
 	resp, err := fence.Client.Do(req)
 	if nil != err {
-		return AUTHZ_NOTOK, err
+		return false, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		fence.Cache.Add(token, action, resource, false)
-		return AUTHZ_NOTOK, nil
+		return false, nil
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if nil != err {
-		return AUTHZ_NOTOK, err
+		return false, err
 	}
 	userInfo := FenceUserResponseFromJSON(body)
 
 	if nil != userInfo && userInfo.IsAdmin {
 		fence.Cache.Add(token, action, resource, true)
-		return AUTHZ_OK, nil
+		return true, nil
 	}
 	fence.Cache.Add(token, action, resource, false)
-	return AUTHZ_NOTOK, nil
+	return false, nil
 }

@@ -1,15 +1,10 @@
 package authproxy
 
-// Valid results from AuthService.CheckAccess
-const (
-	AUTHZ_OK    = iota
-	AUTHZ_NOTOK = iota
-)
-
 // AuthzService is a common interface for different Authz providers (arborist, fence, ...)
 type AuthzService interface {
 	// Check whether the token grants the caller permission on resource.
-	CheckAccess(token, action, resource string) (access int, err error)
+	// true access authorizes the user, false denies access
+	CheckAccess(token, action, resource string) (access bool, err error)
 }
 
 var fenceSingleton *FenceAuthzService

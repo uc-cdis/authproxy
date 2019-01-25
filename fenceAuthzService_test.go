@@ -9,7 +9,7 @@ import (
 func TestFenceAuthzInvalidToken(t *testing.T) {
 	var authz AuthzService = FenceConfigFromRuntime(&GlobalConfig).Build(NullCache)
 	result, _ := authz.CheckAccess("bogustoken", "prometheus-admin", "*")
-	if result != AUTHZ_NOTOK {
+	if result {
 		t.Error("bogus access check should fail")
 	}
 }
@@ -41,7 +41,7 @@ func TestFenceAuthzValidToken(t *testing.T) {
 		if nil != err {
 			t.Error(fmt.Sprintf("unexpected error: %v", err))
 		}
-		if result != AUTHZ_OK {
+		if !result {
 			t.Error("test token access check should succeed")
 		}
 	}
@@ -56,7 +56,7 @@ func TestFenceAuthzValidToken(t *testing.T) {
 		if nil != err {
 			t.Error(fmt.Sprintf("unexpected error with bad token: %v", err))
 		}
-		if result != AUTHZ_NOTOK {
+		if result {
 			t.Error("test token access check should not succeed")
 		}
 	}

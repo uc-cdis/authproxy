@@ -10,6 +10,7 @@ import (
 type RuntimeConfig struct {
 	AuthzProvider    string
 	FenceEndpointURL string
+	ServerRoot       string
 	ServerPort       int
 	CacheSize        int
 	CacheTimeoutSecs int
@@ -19,6 +20,7 @@ type RuntimeConfig struct {
 var GlobalConfig = RuntimeConfig{
 	AuthzProvider:    "fence",
 	FenceEndpointURL: "http://fence-service",
+	ServerRoot:       "",
 	ServerPort:       7780,
 	CacheSize:        1000,
 	CacheTimeoutSecs: 60,
@@ -46,6 +48,7 @@ func EnvGetInt(key string, fallback int) int {
 // LoadEnv initialize the runtime configuration from
 // environment variables: APROXY_FENCE_ENDPOINT
 func (config *RuntimeConfig) LoadEnv() {
+	config.ServerRoot = EnvGet("AUTHPROXY_ROOT", "")
 	config.ServerPort = EnvGetInt("AUTHPROXY_PORT", config.ServerPort)
 	config.FenceEndpointURL = EnvGet("AUTHPROXY_FENCE_URL", config.FenceEndpointURL)
 	config.CacheSize = EnvGetInt("AUTHPROXY_CACHE_SIZE", config.CacheSize)
@@ -54,7 +57,9 @@ func (config *RuntimeConfig) LoadEnv() {
 
 // String interface implementation
 func (config RuntimeConfig) String() string {
-	return fmt.Sprintf("(AuthzProvider: %v, FenceEndpointURL: %v, ServerPort: %v)",
-		config.AuthzProvider, config.FenceEndpointURL, config.ServerPort,
+	return fmt.Sprintf(
+		"(AuthzProvider: %v, FenceEndpointURL: %v, ServerRoot %v, ServerPort: %v, CacheSize: %v, CacheTimeoutSecs: %v)",
+		config.AuthzProvider, config.FenceEndpointURL, config.ServerRoot, config.ServerPort,
+		config.CacheSize, config.CacheTimeoutSecs,
 	)
 }
